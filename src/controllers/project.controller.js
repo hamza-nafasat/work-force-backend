@@ -7,11 +7,17 @@ import { CustomError } from "../utils/customError.js";
 // ----------
 const addNewProject = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
-  const { name, description, startDate, endDate, location, labours } = req.body;
-  if (!name || !description || !startDate || !endDate || !location) {
+  let { name, description, startDate, endDate, location, labours, area, position } = req.body;
+  if (!name || !description || !startDate || !endDate || !location || !area || !labours || !position) {
     return next(new CustomError(400, "Please Provide all fields"));
   }
+  if (!Array.isArray(area)) return next(new CustomError(400, "Area Must Be An Array"));
   if (!Array.isArray(labours)) return next(new CustomError(400, "Labours Must Be An Array"));
+  area = area.map((item) => {
+    if (!Array.isArray(item)) return next(new CustomError(400, "Area Must Be An Array of Arrays"));
+    if (item.length !== 2) return next(new CustomError(400, "Area Must Be An Array of Arrays of length 2"));
+    return [Number(item[0]), Number(item[1])];
+  });
   let laboursSet = new Set();
   labours.forEach((labour) => {
     if (!isValidObjectId(labour)) return next(new CustomError(400, "Invalid Labour Id"));
@@ -21,9 +27,11 @@ const addNewProject = asyncHandler(async (req, res, next) => {
   try {
     project = await Project.create({
       name,
+      area,
       ownerId,
       description,
       startDate,
+      position,
       endDate,
       location,
       labours: [...laboursSet],
@@ -32,7 +40,7 @@ const addNewProject = asyncHandler(async (req, res, next) => {
     // console.log("Error while adding new project", error);
     return next(new CustomError(400, "Error while adding new project"));
   }
-  return res.status(201).json({ success: true, data: project });
+  return res.status(201).json({ success: true, message: "Project Added Successfully" });
 });
 
 // get single project
@@ -91,7 +99,7 @@ const deleteSingleProject = asyncHandler(async (req, res, next) => {
 // ----------------
 const getAllProjects = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
-  const projects = await Project.find({ ownerId: ownerId });
+  const projects = await Project.find({ ownerId: ownerId }).populate("labours");
   return res.status(200).json({ success: true, data: projects });
 });
 
