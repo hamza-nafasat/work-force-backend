@@ -48,9 +48,7 @@ const login = asyncHandler(async (req, res, next) => {
   const matchPwd = await bcrypt.compare(password, user.password);
   if (!matchPwd) return next(new CustomError(400, "Wrong username or password"));
   // make and store access and refresh token in cookies
-  setTimeout(async () => {
-    await sendToken(res, next, user, 200, "Logged In Successfully");
-  }, 5000);
+  await sendToken(res, next, user, 200, "Logged In Successfully");
 });
 
 // logout

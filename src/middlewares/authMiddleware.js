@@ -18,7 +18,7 @@ const isAuthenticated = asyncHandler(async (req, res, next) => {
     req.user = user;
     return next();
   } catch (error) {
-    console.log("Error in isAuthenticated:", error);
+    // console.log("Error in isAuthenticated:", error);
     return next(new CustomError(401, "Please Login First"));
   }
 });
