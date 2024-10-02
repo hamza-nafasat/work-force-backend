@@ -4,10 +4,17 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import AuthRoutes from "./routes/auth.routes.js";
 import LabourRoutes from "./routes/labour.routes.js";
 import ProjectRoutes from "./routes/project.routes.js";
+import cors from "cors";
 
 const app = express();
 
 // middlewares
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:5173",
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
