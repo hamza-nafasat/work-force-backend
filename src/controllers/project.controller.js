@@ -61,6 +61,7 @@ const updateSingleProject = asyncHandler(async (req, res, next) => {
   const { projectId } = req.params;
   if (!isValidObjectId(projectId)) return next(new CustomError(400, "Invalid Project Id"));
   const { name, description, startDate, endDate, location, labours } = req.body;
+  console.log(req.body);
   if (!name && !description && !startDate && !endDate && !location && !labours) {
     return next(new CustomError(400, "Please Provide at least one field to update"));
   }
@@ -81,6 +82,8 @@ const updateSingleProject = asyncHandler(async (req, res, next) => {
     });
     project.labours = [...laboursSet];
   }
+
+  await project.save();
   return res.status(200).json({ success: true, message: "Project Updated Successfully" });
 });
 
