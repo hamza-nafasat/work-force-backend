@@ -49,7 +49,7 @@ const getSingleProject = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   const { projectId } = req.params;
   if (!isValidObjectId(projectId)) return next(new CustomError(400, "Invalid Project Id"));
-  const project = await Project.findOne({ _id: projectId, ownerId: ownerId });
+  const project = await Project.findOne({ _id: projectId, ownerId: ownerId }).populate("labours");
   if (!project) return next(new CustomError(400, "Project Not Found"));
   return res.status(200).json({ success: true, data: project });
 });
