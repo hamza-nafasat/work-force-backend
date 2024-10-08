@@ -4,6 +4,8 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import AuthRoutes from "./routes/auth.routes.js";
 import LabourRoutes from "./routes/labour.routes.js";
 import ProjectRoutes from "./routes/project.routes.js";
+import SensorRoutes from "./routes/sensor.routes.js";
+import VehicleRoutes from "./routes/vehicle.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -24,16 +26,8 @@ app.get("/", (req, res) => res.send("Hello World!"));
 app.use("/api/auth", AuthRoutes);
 app.use("/api/labour", LabourRoutes);
 app.use("/api/project", ProjectRoutes);
-
-// (async () => {
-//   const user = await Auth.create({
-//     firstName: "Hamza",
-//     lastName: "Nafasat",
-//     email: "gyromaster55@gmail.com",
-//     password: "hamza.55",
-//   });
-//   console.log(user, "hlsdkfj;alsjkd;fl");
-// })();
+app.use("/api/sensor", SensorRoutes);
+app.use("/api/vehicle", VehicleRoutes);
 
 // error handler
 app.use(errorHandler);

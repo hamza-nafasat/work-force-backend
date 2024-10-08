@@ -3,8 +3,8 @@ import { Project } from "../models/project.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { CustomError } from "../utils/customError.js";
 
-// Add Labour
-// ----------
+// Add New Project
+// --------------
 const addNewProject = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   let { name, description, startDate, endDate, location, labours, area, position } = req.body;

@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "Auth" },
+    name: { type: String, required: true },
     description: { type: String, required: true },
     startDate: { type: String, required: true },
     endDate: { type: String, required: true },
