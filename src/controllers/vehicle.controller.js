@@ -1,11 +1,9 @@
-import { isValidObjectId, set } from "mongoose";
-import { Project } from "../models/project.model.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { CustomError } from "../utils/customError.js";
-import { Vehicle } from "../models/vehicle.model.js";
+import { isValidObjectId } from "mongoose";
 import { Sensor } from "../models/sensor.model.js";
-import { Labour } from "../models/labour.model.js";
+import { Vehicle } from "../models/vehicle.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { CustomError } from "../utils/customError.js";
 
 // Add new vehicle
 // ---------------
@@ -47,7 +45,7 @@ const addNewVehicle = asyncHandler(async (req, res, next) => {
 // ---------------
 const getAllVehicles = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
-  const vehicles = await Vehicle.find({ ownerId: ownerId }).populate("sensor");
+  const vehicles = await Vehicle.find({ ownerId: ownerId }).populate("sensor").populate("driver");
   return res.status(200).json({ success: true, data: vehicles });
 });
 
@@ -57,7 +55,9 @@ const getSingleVehicle = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   const { vehicleId } = req.params;
   if (!isValidObjectId(vehicleId)) return next(new CustomError(400, "Invalid Vehicle Id"));
-  const vehicle = await Vehicle.findOne({ _id: vehicleId, ownerId: ownerId }).populate("sensor");
+  const vehicle = await Vehicle.findOne({ _id: vehicleId, ownerId: ownerId })
+    .populate("sensor")
+    .populate("driver");
   if (!vehicle) return next(new CustomError(400, "Vehicle Not Found"));
   return res.status(200).json({ success: true, data: vehicle });
 });
@@ -105,4 +105,4 @@ const updateSingleVehicle = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ success: true, message: "Vehicle Updated Successfully", data: vehicle });
 });
 
-export { addNewVehicle, getAllVehicles, getSingleVehicle, deleteSingleVehicle, updateSingleVehicle };
+export { addNewVehicle, deleteSingleVehicle, getAllVehicles, getSingleVehicle, updateSingleVehicle };

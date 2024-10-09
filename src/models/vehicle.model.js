@@ -11,6 +11,7 @@ const vehicleSchema = new mongoose.Schema(
     color: { type: String, required: true },
     image: { type: imageSchema, required: true },
     sensor: { type: mongoose.Schema.Types.ObjectId, ref: "Sensor" },
+    driver: { type: mongoose.Schema.Types.ObjectId, ref: "Labour" },
   },
   { timestamps: true }
 );
