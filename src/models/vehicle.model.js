@@ -10,8 +10,8 @@ const vehicleSchema = new mongoose.Schema(
     idNumber: { type: String, required: true, unique: true },
     color: { type: String, required: true },
     image: { type: imageSchema, required: true },
-    sensor: { type: mongoose.Schema.Types.ObjectId, ref: "Sensor" },
-    driver: { type: mongoose.Schema.Types.ObjectId, ref: "Labour" },
+    sensor: { type: mongoose.Schema.Types.ObjectId, ref: "Sensor", default: null },
+    driver: { type: mongoose.Schema.Types.ObjectId, ref: "Labour", default: null },
   },
   { timestamps: true }
 );

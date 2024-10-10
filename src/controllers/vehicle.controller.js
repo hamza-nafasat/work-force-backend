@@ -4,21 +4,27 @@ import { Vehicle } from "../models/vehicle.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { removeFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { CustomError } from "../utils/customError.js";
+import { Labour } from "../models/labour.model.js";
 
 // Add new vehicle
 // ---------------
 const addNewVehicle = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   let image = req.file;
-  const { name, brand, plateNumber, idNumber, color, sensor } = req.body;
+  const { name, brand, plateNumber, idNumber, color, sensor, driver } = req.body;
   let dataForUpload = {};
   //   validation
   if (!name || !brand || !plateNumber || !idNumber || !color || !image)
     return next(new CustomError(400, "Please Provide All Required Fields"));
   if (sensor) {
-    const result = await Sensor.findByIdAndUpdate(sensor, { isConnected: true }, { new: true });
-    if (!result) return next(new CustomError(400, "Sensor is not available"));
+    const isExist = await Sensor.findById(sensor);
+    if (!isExist || isExist?.isConnected) return next(new CustomError(400, "Sensor is not available"));
     dataForUpload.sensor = sensor;
+  }
+  if (driver) {
+    const isExist = await Labour.findById(driver);
+    if (!isExist || isExist?.assignedVehicle) return next(new CustomError(400, "Driver is not available"));
+    dataForUpload.driver = driver;
   }
   if (plateNumber) {
     const isExist = await Vehicle.findOne({ plateNumber });
@@ -44,8 +50,11 @@ const addNewVehicle = asyncHandler(async (req, res, next) => {
   dataForUpload.image = image;
   dataForUpload.brand = brand;
   const vehicle = await Vehicle.create(dataForUpload);
-
+  const promises = [];
   if (!vehicle) return next(new CustomError(400, "Vehicle Not Added"));
+  if (sensor) promises.push(Sensor.findByIdAndUpdate(sensor, { isConnected: true }));
+  if (driver) promises.push(Labour.findByIdAndUpdate(driver, { assignedVehicle: vehicle._id }));
+  await Promise.all(promises);
   return res.status(200).json({ success: true, message: "Vehicle Added Successfully", data: vehicle });
 });
 
@@ -64,8 +73,8 @@ const getSingleVehicle = asyncHandler(async (req, res, next) => {
   const { vehicleId } = req.params;
   if (!isValidObjectId(vehicleId)) return next(new CustomError(400, "Invalid Vehicle Id"));
   const vehicle = await Vehicle.findOne({ _id: vehicleId, ownerId: ownerId })
-    .populate("sensor")
-    .populate("driver");
+    .populate("driver")
+    .populate("sensor");
   if (!vehicle) return next(new CustomError(400, "Vehicle Not Found"));
   return res.status(200).json({ success: true, data: vehicle });
 });
@@ -79,6 +88,8 @@ const deleteSingleVehicle = asyncHandler(async (req, res, next) => {
   const vehicle = await Vehicle.findOneAndDelete({ _id: vehicleId, ownerId: ownerId });
   if (!vehicle) return next(new CustomError(400, "Vehicle Not Found"));
   await removeFromCloudinary(vehicle?.image?.public_id);
+  if (vehicle?.sensor) await Sensor.findByIdAndUpdate(vehicle?.sensor, { isConnected: false });
+  if (vehicle?.driver) await Vehicle.findByIdAndUpdate(vehicle?.driver, { assignedVehicle: null });
   return res.status(200).json({ success: true, message: "Vehicle Deleted Successfully" });
 });
 
@@ -88,9 +99,9 @@ const updateSingleVehicle = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   const { vehicleId } = req.params;
   if (!isValidObjectId(vehicleId)) return next(new CustomError(400, "Invalid Vehicle Id"));
-  const { name, brand, plateNumber, idNumber, color } = req.body;
+  const { name, brand, plateNumber, idNumber, color, sensor, driver } = req.body;
   let image = req.file;
-  if (!name && !brand && !plateNumber && !idNumber && !color && !image)
+  if (!name && !brand && !plateNumber && !idNumber && !color && !image && !sensor && !driver)
     return next(new CustomError(400, "Please Provide at least one field to update"));
 
   let vehicle = await Vehicle.findOne({ _id: vehicleId, ownerId: ownerId });
@@ -116,7 +127,27 @@ const updateSingleVehicle = asyncHandler(async (req, res, next) => {
     if (!imageUploaded) return next(new CustomError(400, "Image Upload Failed"));
     vehicle.image = { url: imageUploaded.secure_url, public_id: imageUploaded.public_id };
   }
+
+  if (sensor && vehicle?.sensor !== sensor) {
+    const isExist = await Sensor.findById(sensor);
+    if (!isExist || isExist?.isConnected) return next(new CustomError(400, "Sensor is not available"));
+    vehicle.sensor = sensor;
+  }
+  if (driver && vehicle?.driver !== driver) {
+    const isExist = await Labour.findById(driver);
+    if (!isExist || isExist?.assignedVehicle) return next(new CustomError(400, "Driver is not available"));
+    vehicle.driver = driver;
+  }
+
   vehicle = await vehicle.save();
+  if (!vehicle) return next(new CustomError(400, "Vehicle Not Updated"));
+
+  const promises = [];
+  if (!vehicle) return next(new CustomError(400, "Vehicle Not Added"));
+  if (sensor) promises.push(Sensor.findByIdAndUpdate(sensor, { isConnected: true }));
+  if (driver) promises.push(Labour.findByIdAndUpdate(driver, { assignedVehicle: vehicle._id }));
+  await Promise.all(promises);
+
   return res.status(200).json({ success: true, message: "Vehicle Updated Successfully", data: vehicle });
 });
 

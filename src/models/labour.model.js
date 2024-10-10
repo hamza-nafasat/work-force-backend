@@ -22,8 +22,8 @@ const labourSchema = new mongoose.Schema(
     workingHour: { type: workingHourSchema, required: true },
     gender: { type: String, required: true },
     image: { type: imageSchema, required: true },
-    assignedVehicle: [{ type: mongoose.Schema.Types.ObjectId, ref: "Vehicle" }],
-    sensors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Sensor" }],
+    assignedVehicle: { type: mongoose.Schema.Types.ObjectId, ref: "Vehicle", default: null },
+    sensor: { type: mongoose.Schema.Types.ObjectId, ref: "Sensor", default: null },
   },
   { timestamps: true }
 );
