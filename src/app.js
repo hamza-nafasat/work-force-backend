@@ -6,6 +6,7 @@ import LabourRoutes from "./routes/labour.routes.js";
 import ProjectRoutes from "./routes/project.routes.js";
 import SensorRoutes from "./routes/sensor.routes.js";
 import VehicleRoutes from "./routes/vehicle.routes.js";
+import UserRoutes from "./routes/user.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -28,6 +29,7 @@ app.use("/api/labour", LabourRoutes);
 app.use("/api/project", ProjectRoutes);
 app.use("/api/sensor", SensorRoutes);
 app.use("/api/vehicle", VehicleRoutes);
+app.use("/api/user", UserRoutes);
 
 // error handler
 app.use(errorHandler);
