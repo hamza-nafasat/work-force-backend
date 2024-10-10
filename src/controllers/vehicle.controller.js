@@ -2,7 +2,7 @@ import { isValidObjectId } from "mongoose";
 import { Sensor } from "../models/sensor.model.js";
 import { Vehicle } from "../models/vehicle.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { removeFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import { CustomError } from "../utils/customError.js";
 
 // Add new vehicle
@@ -11,7 +11,6 @@ const addNewVehicle = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   let image = req.file;
   const { name, brand, plateNumber, idNumber, color, sensor } = req.body;
-  console.log(req.body);
   let dataForUpload = {};
   //   validation
   if (!name || !brand || !plateNumber || !idNumber || !color || !image)
@@ -20,6 +19,16 @@ const addNewVehicle = asyncHandler(async (req, res, next) => {
     const result = await Sensor.findByIdAndUpdate(sensor, { isConnected: true }, { new: true });
     if (!result) return next(new CustomError(400, "Sensor is not available"));
     dataForUpload.sensor = sensor;
+  }
+  if (plateNumber) {
+    const isExist = await Vehicle.findOne({ plateNumber });
+    if (isExist) return next(new CustomError(400, "Plate Number already exists"));
+    dataForUpload.plateNumber = plateNumber;
+  }
+  if (idNumber) {
+    const isExist = await Vehicle.findOne({ idNumber });
+    if (isExist) return next(new CustomError(400, "ID Number already exists"));
+    dataForUpload.idNumber = idNumber;
   }
   //   upload image on cloudinary
   if (image) {
@@ -30,7 +39,6 @@ const addNewVehicle = asyncHandler(async (req, res, next) => {
 
   dataForUpload.ownerId = ownerId;
   dataForUpload.name = name;
-  dataForUpload.plateNumber = plateNumber;
   dataForUpload.idNumber = idNumber;
   dataForUpload.color = color;
   dataForUpload.image = image;
@@ -87,11 +95,18 @@ const updateSingleVehicle = asyncHandler(async (req, res, next) => {
 
   let vehicle = await Vehicle.findOne({ _id: vehicleId, ownerId: ownerId });
   if (!vehicle) return next(new CustomError(400, "Vehicle Not Found"));
-
   if (name) vehicle.name = name;
   if (brand) vehicle.brand = brand;
-  if (plateNumber) vehicle.plateNumber = plateNumber;
-  if (idNumber) vehicle.idNumber = idNumber;
+  if (plateNumber) {
+    const isExist = await Vehicle.findOne({ plateNumber });
+    if (isExist) return next(new CustomError(400, "Plate Number already exists"));
+    vehicle.plateNumber = plateNumber;
+  }
+  if (idNumber) {
+    const isExist = await Vehicle.findOne({ idNumber });
+    if (isExist) return next(new CustomError(400, "ID Number already exists"));
+    vehicle.idNumber = idNumber;
+  }
   if (color) vehicle.color = color;
   if (image) {
     const [imageUploaded, _] = await Promise.all([
