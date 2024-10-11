@@ -4,6 +4,7 @@ import { JWTService } from "./jwtService.js";
 import { CustomError } from "../../utils/customError.js";
 
 const sendToken = async (res, next, user, statusCode, message) => {
+  console.log(user);
   const accessToken = await JWTService().accessToken(String(user?._id));
   const refreshToken = await JWTService().refreshToken(String(user?._id));
   if (!accessToken || !refreshToken) return next(new CustomError(400, "Error While Generating Tokens"));
@@ -13,7 +14,7 @@ const sendToken = async (res, next, user, statusCode, message) => {
   return res.status(statusCode).json({
     success: true,
     message: message,
-    data: { ...user?._doc, password: null },
+    data: user,
   });
 };
 

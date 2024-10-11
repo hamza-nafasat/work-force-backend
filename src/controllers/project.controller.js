@@ -6,7 +6,7 @@ import { CustomError } from "../utils/customError.js";
 // Add New Project
 // --------------
 const addNewProject = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   let { name, description, startDate, endDate, location, labours, area, position } = req.body;
   if (!name || !description || !startDate || !endDate || !location || !area || !labours || !position) {
     return next(new CustomError(400, "Please Provide all fields"));
@@ -46,7 +46,8 @@ const addNewProject = asyncHandler(async (req, res, next) => {
 // get single project
 // ------------------
 const getSingleProject = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
   const { projectId } = req.params;
   if (!isValidObjectId(projectId)) return next(new CustomError(400, "Invalid Project Id"));
   const project = await Project.findOne({ _id: projectId, ownerId: ownerId }).populate("labours");
@@ -57,7 +58,7 @@ const getSingleProject = asyncHandler(async (req, res, next) => {
 // update single project
 // --------------------
 const updateSingleProject = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { projectId } = req.params;
   if (!isValidObjectId(projectId)) return next(new CustomError(400, "Invalid Project Id"));
   const { name, description, startDate, endDate, location, labours } = req.body;
@@ -90,7 +91,7 @@ const updateSingleProject = asyncHandler(async (req, res, next) => {
 // delete single project
 // --------------------
 const deleteSingleProject = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { projectId } = req.params;
   if (!isValidObjectId(projectId)) return next(new CustomError(400, "Invalid Project Id"));
   const project = await Project.findOneAndDelete({ _id: projectId, ownerId: ownerId });
@@ -101,7 +102,9 @@ const deleteSingleProject = asyncHandler(async (req, res, next) => {
 // get all projects
 // ----------------
 const getAllProjects = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
+  console.log(ownerId);
   const projects = await Project.find({ ownerId: ownerId }).populate("labours");
   return res.status(200).json({ success: true, data: projects });
 });

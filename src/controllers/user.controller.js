@@ -7,7 +7,7 @@ import { CustomError } from "../utils/customError.js";
 // Add new user
 // ------------
 const addNewUser = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const image = req?.file;
   const { firstName, lastName, email, phoneNumber, address, password } = req.body;
   if (!firstName || !lastName || !email || !phoneNumber || !address || !password || !image) {
@@ -37,7 +37,9 @@ const addNewUser = asyncHandler(async (req, res, next) => {
 // get all users
 // -------------
 const getAllUsers = asyncHandler(async (req, res, next) => {
-  const users = await User.find();
+  let { _id: ownerId } = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
+  const users = await User.find({ ownerId: ownerId });
   if (!users) return next(new CustomError(400, "No Users Found"));
   res.status(200).json({ success: true, users });
 });
@@ -45,7 +47,8 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
 // get single user
 // ----------------
 const getSingleUser = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
   const { userId } = req.params;
   if (!isValidObjectId(userId)) return next(new CustomError(400, "Invalid User Id"));
   const user = await User.findOne({ _id: userId, ownerId: ownerId });
@@ -56,7 +59,7 @@ const getSingleUser = asyncHandler(async (req, res, next) => {
 // update single user
 // ------------------
 const updateSingleUser = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { userId } = req.params;
   if (!isValidObjectId(userId)) return next(new CustomError(400, "Invalid User Id"));
   const image = req?.file;
@@ -89,7 +92,7 @@ const updateSingleUser = asyncHandler(async (req, res, next) => {
 // delete single user
 // -------------------
 const deleteSingleUser = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { userId } = req.params;
   if (!isValidObjectId(userId)) return next(new CustomError(400, "Invalid User Id"));
   const user = await User.findById(userId);

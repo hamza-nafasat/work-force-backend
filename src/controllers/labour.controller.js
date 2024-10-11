@@ -7,7 +7,7 @@ import { CustomError } from "../utils/customError.js";
 // Add Labour
 // ----------
 const addNewLabour = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const {
     fullName,
     nationality,
@@ -74,7 +74,7 @@ const addNewLabour = asyncHandler(async (req, res, next) => {
 // update single labour
 // --------------------
 const updateSingleLabour = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { labourId } = req.params;
   if (!isValidObjectId(labourId)) return next(new CustomError(400, "Invalid Labour Id"));
   const {
@@ -135,7 +135,8 @@ const updateSingleLabour = asyncHandler(async (req, res, next) => {
 // get single Labour
 // -----------------
 const getSingleLabour = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
   const { labourId } = req.params;
   if (!isValidObjectId(labourId)) return next(new CustomError(400, "Invalid Labour Id"));
   const labour = await Labour.findOne({ _id: labourId, ownerId: ownerId });
@@ -146,7 +147,7 @@ const getSingleLabour = asyncHandler(async (req, res, next) => {
 // delete single Labour
 // --------------------
 const deleteSingleLabour = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { labourId } = req.params;
   if (!isValidObjectId(labourId)) return next(new CustomError(400, "Invalid Labour Id"));
   const labour = await Labour.findOneAndDelete({ _id: labourId, ownerId: ownerId });
@@ -158,7 +159,8 @@ const deleteSingleLabour = asyncHandler(async (req, res, next) => {
 // get all labours
 // ----------------
 const getAllLabours = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
   const labours = await Labour.find({ ownerId: ownerId });
   return res.status(200).json({ success: true, data: labours });
 });

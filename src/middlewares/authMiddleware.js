@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { CustomError } from "../utils/customError.js";
 import { Auth } from "../models/auth.model.js";
 import { JWTService } from "../services/auth/jwtService.js";
+import { User } from "../models/user.model.js";
 
 // auth middleware
 // ---------------
@@ -13,7 +14,8 @@ const isAuthenticated = asyncHandler(async (req, res, next) => {
     if (!accessToken || !refreshToken) return next(new CustomError(401, "Please Login First"));
     const decoded = await JWTService().verifyAccessToken(accessToken);
     if (!decoded) return next(new CustomError(401, "Please Login First"));
-    const user = await Auth.findById(decoded?._id);
+    let user = await Auth.findById(decoded?._id);
+    if (!user) user = await User.findById(decoded?._id);
     if (!user) return next(new CustomError(401, "Please Login First"));
     req.user = user;
     return next();

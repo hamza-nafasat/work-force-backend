@@ -9,7 +9,7 @@ import { Labour } from "../models/labour.model.js";
 // Add new vehicle
 // ---------------
 const addNewVehicle = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   let image = req.file;
   const { name, brand, plateNumber, idNumber, color, sensor, driver } = req.body;
   let dataForUpload = {};
@@ -61,7 +61,7 @@ const addNewVehicle = asyncHandler(async (req, res, next) => {
 // get all vehicles
 // ---------------
 const getAllVehicles = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const vehicles = await Vehicle.find({ ownerId: ownerId }).populate("sensor").populate("driver");
   return res.status(200).json({ success: true, data: vehicles });
 });
@@ -69,7 +69,7 @@ const getAllVehicles = asyncHandler(async (req, res, next) => {
 // get single vehicle
 // ------------------
 const getSingleVehicle = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { vehicleId } = req.params;
   if (!isValidObjectId(vehicleId)) return next(new CustomError(400, "Invalid Vehicle Id"));
   const vehicle = await Vehicle.findOne({ _id: vehicleId, ownerId: ownerId })
@@ -82,7 +82,7 @@ const getSingleVehicle = asyncHandler(async (req, res, next) => {
 // delete single vehicle
 // ---------------------
 const deleteSingleVehicle = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { vehicleId } = req.params;
   if (!isValidObjectId(vehicleId)) return next(new CustomError(400, "Invalid Vehicle Id"));
   const vehicle = await Vehicle.findOneAndDelete({ _id: vehicleId, ownerId: ownerId });
@@ -96,7 +96,7 @@ const deleteSingleVehicle = asyncHandler(async (req, res, next) => {
 // update single vehicle
 // ---------------------
 const updateSingleVehicle = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  let { _id: ownerId } = req?.user?._id;
   const { vehicleId } = req.params;
   if (!isValidObjectId(vehicleId)) return next(new CustomError(400, "Invalid Vehicle Id"));
   const { name, brand, plateNumber, idNumber, color, sensor, driver } = req.body;

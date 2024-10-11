@@ -21,6 +21,7 @@ const addNewSensor = asyncHandler(async (req, res, next) => {
 // ----------------
 const getAllSensors = asyncHandler(async (req, res, next) => {
   const ownerId = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
   const sensors = await Sensor.find({ ownerId }).sort({ createdAt: -1 });
   if (!sensors) return next(new CustomError(400, "Sensors Not Found"));
   return res.status(200).json({ success: true, data: sensors });
@@ -30,6 +31,7 @@ const getAllSensors = asyncHandler(async (req, res, next) => {
 // ----------------
 const getSingleSensor = asyncHandler(async (req, res, next) => {
   const ownerId = req?.user?._id;
+  if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
   const { sensorId } = req.params;
   if (!isValidObjectId(sensorId)) return next(new CustomError(400, "Invalid Sensor Id"));
   const sensor = await Sensor.findOne({ _id: sensorId, ownerId });
