@@ -41,7 +41,7 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
   if (req?.user?.ownerId) ownerId = req?.user?.ownerId;
   const users = await User.find({ ownerId: ownerId });
   if (!users) return next(new CustomError(400, "No Users Found"));
-  res.status(200).json({ success: true, users });
+  res.status(200).json({ success: true, data: users });
 });
 
 // get single user
@@ -63,8 +63,8 @@ const updateSingleUser = asyncHandler(async (req, res, next) => {
   const { userId } = req.params;
   if (!isValidObjectId(userId)) return next(new CustomError(400, "Invalid User Id"));
   const image = req?.file;
-  const { firstName, lastName, email, phoneNumber, address, password } = req.body;
-  if (!firstName && !lastName && !email && !phoneNumber && !address && !password && !image)
+  const { firstName, lastName, email, phoneNumber, address, password, role } = req.body;
+  if (!firstName && !lastName && !email && !phoneNumber && !address && !password && !image && !role)
     return next(new CustomError(400, "Please Provide at least one field to update"));
   const user = await User.findById(userId);
   if (!user) return next(new CustomError(400, "User Not Found"));
@@ -75,6 +75,7 @@ const updateSingleUser = asyncHandler(async (req, res, next) => {
   if (phoneNumber) user.phoneNumber = phoneNumber;
   if (address) user.address = address;
   if (password) user.password = password;
+  if (role) user.role = role;
   if (image) {
     const myCloud = await uploadOnCloudinary(image, "users");
     if (!myCloud?.public_id || !myCloud?.secure_url)
