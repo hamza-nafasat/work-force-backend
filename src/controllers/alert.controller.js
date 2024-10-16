@@ -1,6 +1,5 @@
-import { Alert } from "../models/alert.model";
-import Notification from "../models/notification.model";
-import { asyncHandler } from "../utils/asyncHandler";
+import { Alert } from "../models/alert.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // add new alert
 // -------------
@@ -75,4 +74,4 @@ const updateSingleAlert = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ success: true, message: "Alert Updated Successfully" });
 });
 
-export { addNewAlert, getAllAlerts, getSingleAlert, deleteSingleAlert, updateSingleAlert };
+export { addNewAlert, deleteSingleAlert, getAllAlerts, getSingleAlert, updateSingleAlert };

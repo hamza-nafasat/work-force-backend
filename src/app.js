@@ -7,6 +7,9 @@ import ProjectRoutes from "./routes/project.routes.js";
 import SensorRoutes from "./routes/sensor.routes.js";
 import VehicleRoutes from "./routes/vehicle.routes.js";
 import UserRoutes from "./routes/user.routes.js";
+import AlertRoutes from "./routes/alert.routes.js";
+import GeofenceRoutes from "./routes/geofence.routes.js";
+import NotificationRoutes from "./routes/notification.routes.js";
 import cors from "cors";
 
 const app = express();
@@ -30,6 +33,9 @@ app.use("/api/project", ProjectRoutes);
 app.use("/api/sensor", SensorRoutes);
 app.use("/api/vehicle", VehicleRoutes);
 app.use("/api/user", UserRoutes);
+app.use("/api/alert", AlertRoutes);
+app.use("/api/geofence", GeofenceRoutes);
+app.use("/api/notification", NotificationRoutes);
 
 // error handler
 app.use(errorHandler);

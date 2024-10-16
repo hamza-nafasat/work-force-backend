@@ -1,5 +1,5 @@
-import Notification from "../models/notification.model";
-import { asyncHandler } from "../utils/asyncHandler";
+import Notification from "../models/notification.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // add new notification
 // -------------------

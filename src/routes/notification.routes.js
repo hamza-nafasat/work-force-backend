@@ -1,6 +1,4 @@
 import express from "express";
-import { isAuthenticated } from "../middlewares/authMiddleware.js";
-import { singleUpload } from "../middlewares/multer.js";
 import {
   addNewNotification,
   deleteSingleNotification,
@@ -9,6 +7,7 @@ import {
   readAllUnreadNotifications,
   readSingleNotification,
 } from "../controllers/notification.controller.js";
+import { isAuthenticated } from "../middlewares/authMiddleware.js";
 
 const app = express();
 

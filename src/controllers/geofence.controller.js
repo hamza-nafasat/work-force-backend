@@ -1,9 +1,8 @@
 import { isValidObjectId } from "mongoose";
-import { Labour } from "../models/labour.model.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { removeFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
-import { CustomError } from "../utils/customError.js";
 import GeoFence from "../models/geofence.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { removeFromCloudinary } from "../utils/cloudinary.js";
+import { CustomError } from "../utils/customError.js";
 
 // Add Geofence
 // ------------
@@ -96,4 +95,4 @@ const updateSingleGeofence = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ success: true, message: "Geofence Updated Successfully" });
 });
 
-export { addNewGeofence, getAllGeofences, getSingleGeofence, deleteSingleGeofence, updateSingleGeofence };
+export { addNewGeofence, deleteSingleGeofence, getAllGeofences, getSingleGeofence, updateSingleGeofence };
