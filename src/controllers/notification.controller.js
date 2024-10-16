@@ -8,7 +8,6 @@ const addNewNotification = asyncHandler(async (req, res, next) => {
   const { to, type, message, vehicle, labour } = req.body;
   if (!to || !type || !message) return next(new CustomError(400, "Please Provide all fields"));
   let notificationData = {
-    ownerId,
     to,
     type,
     message,
@@ -26,7 +25,7 @@ const addNewNotification = asyncHandler(async (req, res, next) => {
 // ---------------------
 const getAllNotifications = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
-  const notifications = await Notification.find({ ownerId: ownerId });
+  const notifications = await Notification.find({ to: ownerId });
   return res.status(200).json({ success: true, data: notifications });
 });
 
@@ -36,7 +35,7 @@ const getSingleNotification = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   const { notificationId } = req.params;
   if (!isValidObjectId(notificationId)) return next(new CustomError(400, "Invalid Notification Id"));
-  const notification = await Notification.findOne({ _id: notificationId, ownerId: ownerId });
+  const notification = await Notification.findOne({ _id: notificationId, to: ownerId });
   if (!notification) return next(new CustomError(400, "Notification Not Found"));
   return res.status(200).json({ success: true, data: notification });
 });
@@ -47,7 +46,7 @@ const deleteSingleNotification = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   const { notificationId } = req.params;
   if (!isValidObjectId(notificationId)) return next(new CustomError(400, "Invalid Notification Id"));
-  const notification = await Notification.findOneAndDelete({ _id: notificationId, ownerId: ownerId });
+  const notification = await Notification.findOneAndDelete({ _id: notificationId, to: ownerId });
   if (!notification) return next(new CustomError(400, "Notification Not Found"));
   return res.status(200).json({ success: true, message: "Notification Deleted Successfully" });
 });
@@ -59,7 +58,7 @@ const readSingleNotification = asyncHandler(async (req, res, next) => {
   const { notificationId } = req.params;
   if (!isValidObjectId(notificationId)) return next(new CustomError(400, "Invalid Notification Id"));
   const notification = await Notification.findOneAndUpdate(
-    { _id: notificationId, ownerId: ownerId, isRead: false },
+    { _id: notificationId, to: ownerId, isRead: false },
     { isRead: true, readAt: new Date() }
   );
   if (!notification) return next(new CustomError(400, "Notification Not Found"));
@@ -71,7 +70,7 @@ const readSingleNotification = asyncHandler(async (req, res, next) => {
 const readAllUnreadNotifications = asyncHandler(async (req, res, next) => {
   const { _id: ownerId } = req?.user?._id;
   const notifications = await Notification.updateMany(
-    { ownerId: ownerId, isRead: false },
+    { to: ownerId, isRead: false },
     { isRead: true, readAt: new Date() }
   );
   if (!notifications) return next(new CustomError(400, "Notifications Not Found"));

@@ -6,8 +6,8 @@ const notificationSchema = new Schema(
     type: { type: String, required: true },
     message: { type: String, required: true },
     isRead: { type: Boolean, default: false },
-    vehicle: { type: Types.ObjectId, ref: "Vehicle", required: true },
-    labour: { type: Types.ObjectId, ref: "Labour", required: true },
+    vehicle: { type: Types.ObjectId, ref: "Vehicle" },
+    labour: { type: Types.ObjectId, ref: "Labour" },
     readAt: { type: Date, default: null },
   },
   {
