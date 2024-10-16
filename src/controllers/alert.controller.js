@@ -1,12 +1,18 @@
+import { isValidObjectId } from "mongoose";
 import { Alert } from "../models/alert.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { CustomError } from "../utils/customError.js";
 
 // add new alert
 // -------------
 const addNewAlert = asyncHandler(async (req, res, next) => {
-  const { ownerId } = req?.user?._id;
+  const { _id: ownerId } = req?.user;
   const { type, severity, status, platform } = req.body;
-  if (!type || !severity || !platform) return next(new CustomError(400, "Please Provide all fields"));
+  console.log(req.body);
+  if (!type || !severity || !platform || !status) {
+    console.log(type, severity, status, platform);
+    return next(new CustomError(400, "Please Provide all fields"));
+  }
   const isExist = await Alert.findOne({ type, platform });
   if (isExist) return next(new CustomError(400, "Alert Already Exist"));
   const alertData = {
@@ -24,7 +30,7 @@ const addNewAlert = asyncHandler(async (req, res, next) => {
 // get all alerts
 // ---------------
 const getAllAlerts = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  const { _id: ownerId } = req?.user;
   const alerts = await Alert.find({ ownerId: ownerId });
   return res.status(200).json({ success: true, data: alerts });
 });
@@ -32,7 +38,7 @@ const getAllAlerts = asyncHandler(async (req, res, next) => {
 // get single alert
 // ----------------
 const getSingleAlert = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  const { _id: ownerId } = req?.user;
   const { alertId } = req.params;
   if (!isValidObjectId(alertId)) return next(new CustomError(400, "Invalid Alert Id"));
   const alert = await Alert.findOne({ _id: alertId, ownerId: ownerId });
@@ -43,7 +49,7 @@ const getSingleAlert = asyncHandler(async (req, res, next) => {
 // delete single alert
 // ------------------
 const deleteSingleAlert = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  const { _id: ownerId } = req?.user;
   const { alertId } = req.params;
   if (!isValidObjectId(alertId)) return next(new CustomError(400, "Invalid Alert Id"));
   const alert = await Alert.findOneAndDelete({ _id: alertId, ownerId: ownerId });
@@ -54,7 +60,7 @@ const deleteSingleAlert = asyncHandler(async (req, res, next) => {
 // update single alert
 // ------------------
 const updateSingleAlert = asyncHandler(async (req, res, next) => {
-  const { _id: ownerId } = req?.user?._id;
+  const { _id: ownerId } = req?.user;
   const { alertId } = req.params;
   if (!isValidObjectId(alertId)) return next(new CustomError(400, "Invalid Alert Id"));
   const { type, severity, status, platform } = req.body;
@@ -63,7 +69,7 @@ const updateSingleAlert = asyncHandler(async (req, res, next) => {
   const isExist = await Alert.findOne({ _id: { $ne: alertId }, type, platform });
   if (isExist) return next(new CustomError(400, "Alert Already Exist"));
 
-  const alert = await Alert.findById(alertId);
+  const alert = await Alert.findOne({ _id: alertId, ownerId: ownerId });
   if (!alert) return next(new CustomError(400, "Alert Not Found"));
 
   if (type) alert.type = type;
