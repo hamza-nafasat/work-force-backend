@@ -8,25 +8,25 @@ import { CustomError } from "../utils/customError.js";
 // ------------
 const addNewGeofence = asyncHandler(async (req, res, next) => {
   let { _id: ownerId } = req?.user?._id;
-  const { name, alertType, status, startDate, endDate, labours, area } = req.body;
-  if (!name || !alertType || !status || !startDate || !endDate || !labours || !area) {
+  const { name, alertType, status, startDate, dueDate, area } = req.body;
+  if (!name || !alertType || !status || !startDate || !dueDate || !area) {
     return next(new CustomError(400, "Please Provide all fields"));
   }
-  if (!Array.isArray(labours)) return next(new CustomError(400, "Labours Must Be An Array"));
+  // if (!Array.isArray(labours)) return next(new CustomError(400, "Labours Must Be An Array"));
 
-  let laboursSet = new Set();
-  labours.forEach((labour) => {
-    if (!isValidObjectId(labour)) return next(new CustomError(400, "Invalid Labour Id"));
-    laboursSet.add(String(labour));
-  });
+  // let laboursSet = new Set();
+  // labours.forEach((labour) => {
+  //   if (!isValidObjectId(labour)) return next(new CustomError(400, "Invalid Labour Id"));
+  //   laboursSet.add(String(labour));
+  // });
   const geofence = await GeoFence.create({
     name,
     ownerId,
     alertType,
     status,
     startDate,
-    endDate,
-    labours: [...laboursSet],
+    endDate: dueDate,
+    // labours: [...laboursSet],
     area,
   });
 
