@@ -71,26 +71,29 @@ const deleteSingleGeofence = asyncHandler(async (req, res, next) => {
 const updateSingleGeofence = asyncHandler(async (req, res, next) => {
   let { _id: ownerId } = req?.user?._id;
   const { geofenceId } = req.params;
-  const { name, alertType, status, startDate, endDate, labours, area } = req.body;
-  if (!name || !alertType || !status || !startDate || !endDate || !labours || !area) {
+  const { name, alertType, status, startDate, dueDate, labours, area } = req.body;
+  if (!name && !alertType && !status && !startDate && !dueDate && !labours && !area) {
     return next(new CustomError(400, "Please Provide all fields"));
   }
   if (!isValidObjectId(geofenceId)) return next(new CustomError(400, "Invalid Geofence Id"));
   const geofence = await GeoFence.findOne({ _id: geofenceId, ownerId: ownerId });
   if (!geofence) return next(new CustomError(400, "Geofence Not Found"));
 
-  let laboursSet = new Set();
-  labours.forEach((labour) => {
-    if (!isValidObjectId(labour)) return next(new CustomError(400, "Invalid Labour Id"));
-    laboursSet.add(String(labour));
-  });
-  geofence.name = name;
-  geofence.alertType = alertType;
-  geofence.status = status;
-  geofence.startDate = startDate;
-  geofence.endDate = endDate;
-  geofence.labours = [...laboursSet];
-  geofence.area = area;
+  let laboursSet;
+  if (labours && Array.isArray(labours)) {
+    laboursSet = new Set();
+    labours.forEach((labour) => {
+      if (!isValidObjectId(labour)) return next(new CustomError(400, "Invalid Labour Id"));
+      laboursSet.add(String(labour));
+    });
+  }
+  if (name) geofence.name = name;
+  if (alertType) geofence.alertType = alertType;
+  if (status) geofence.status = status;
+  if (startDate) geofence.startDate = startDate;
+  if (dueDate) geofence.endDate = dueDate;
+  if (laboursSet) geofence.labours = [...laboursSet];
+  if (area) geofence.area = area;
   await geofence.save();
   return res.status(200).json({ success: true, message: "Geofence Updated Successfully" });
 });
